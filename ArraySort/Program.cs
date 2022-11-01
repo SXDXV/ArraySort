@@ -38,6 +38,8 @@ class consoleUtility
                             rangeOfNumbers = randRange.Next(0, 1000);
 
                             generate(countOfLines, rangeOfNumbers, countOfFiles);
+                            Sorting(nums);
+                            for (int i = nums.Count; i > 0; i--) Console.WriteLine(nums[i - 1]);
 
                             whileIndicator = 1;
                         }
@@ -105,36 +107,15 @@ class consoleUtility
             }
 
 
-            if (File.Exists(filesPath + "demoResult.txt")) 
-                File.Delete(filesPath + "demoResult.txt"); 
-
-
             for (int i = 1; i <= countOfFil; i++)
             {
                 // Открытие потока и прочтение информации.
                 using (StreamReader sr = File.OpenText(filesPath + i + ".txt"))
                 {
                     string s = "";
-
-                    if (File.Exists(filesPath + "demoResult.txt"))
+                    while ((s = sr.ReadLine()) != null)
                     {
-                        while ((s = sr.ReadLine()) != null)
-                        {
-                            nums.Add(Convert.ToInt32(s));
-                            File.AppendAllText(filesPath + "demoResult.txt", s.ToString() + "\n"); 
-                        }
-                    }
-                    else
-                    {
-                        using (FileStream fs = File.Create(filesPath + "demoResult.txt"))
-                        {
-                            while ((s = sr.ReadLine()) != null)
-                            {
-                                nums.Add(Convert.ToInt32(s));
-                                byte[] info = new UTF8Encoding(true).GetBytes(s + "\n");
-                                fs.Write(info, 0, info.Length);
-                            }
-                        }
+                        nums.Add(Convert.ToInt32(s));
                     }
                 }
             }
@@ -143,6 +124,7 @@ class consoleUtility
         {
             Console.WriteLine(e.ToString());
         }
+
         Sorting(nums);
     }
 
