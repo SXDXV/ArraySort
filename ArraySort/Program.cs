@@ -106,7 +106,7 @@ class consoleUtility
 
 
             if (File.Exists(filesPath + "demoResult.txt")) 
-                File.Delete(filesPath + "demoResult.txt");
+                File.Delete(filesPath + "demoResult.txt"); 
 
 
             for (int i = 1; i <= countOfFil; i++)
