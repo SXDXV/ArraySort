@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -37,9 +38,10 @@ class consoleUtility
                             Random randRange = new Random();
                             rangeOfNumbers = randRange.Next(0, 1000);
 
-                            generate(countOfLines, rangeOfNumbers, countOfFiles);
+                            Generate(countOfLines, rangeOfNumbers, countOfFiles);
                             Sorting(nums);
-                            for (int i = nums.Count; i > 0; i--) Console.WriteLine(nums[i - 1]);
+                            nums.Reverse();
+                            for (int i = 0; i < nums.Count; i++) Console.WriteLine(nums[i]);
 
                             whileIndicator = 1;
                         }
@@ -57,9 +59,14 @@ class consoleUtility
 
                         countOfLines = randCount.Next(100, 1000);
                         rangeOfNumbers = randRange.Next(0, 1000);
-                        generate(countOfLines, rangeOfNumbers, countOfFiles);
-                        Sorting(nums);
-                        for (int i = nums.Count; i>0; i--) Console.WriteLine(nums[i-1]);
+                        Generate(countOfLines, rangeOfNumbers, countOfFiles);
+                        nums.Reverse();
+                        for (int i = 0; i < nums.Count; i++) Console.WriteLine(nums[i]);
+                        
+                        Console.WriteLine("Уникальные: ");
+                        Unique(nums);
+                        //for (int i = 0; i < nums.Count; i++) Console.WriteLine(nums[i]);
+
 
                         whileIndicator = 1;
                     }
@@ -78,7 +85,7 @@ class consoleUtility
         Console.ReadLine();
     }
 
-    static void generate(int countOfLin, int range, int countOfFil)
+    static void Generate(int countOfLin, int range, int countOfFil)
     {
         int lineCheker, number;
 
@@ -145,6 +152,31 @@ class consoleUtility
             list[i] = list[min];
             list[min] = dummy;
         }
+        return list;
+    }
+
+    public static List<int> Unique(List<int> list)
+    {
+        try
+        {
+            var result = list.Select((el, idx) => (el, idx))
+                    .GroupBy(c => c.el)
+                    .Where(g => g.Count() > 1)
+                    .SelectMany(g => g.Select(c => c.idx).ToList())
+                    .ToList();
+
+            for (int i = 0; i < result.Count; i++)
+            {
+                //list.RemoveAt(result[i]);
+                Console.WriteLine(result[i]);
+            }
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
         return list;
     }
 }
