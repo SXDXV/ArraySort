@@ -5,21 +5,27 @@ using System.Text;
 
 class consoleUtility
 {
+    // Универсальный путь для создания и чтения файлов.
     static string filesPath = Environment.CurrentDirectory + "/txts/File";
 
+    // Три листа, хранящие специализированные данные.
     static List<int> nums = new List<int>();
     static List<int> numsUnique = new List<int>();
     static List<int> numsDivision = new List<int>();
 
+    // Финальный стринг, хранящий в себе
+    // полный текст для финальной записи в файл.
     static string finalText;
 
+
+    // Основная Main-функция, точка входа в программу.
     static void Main(string[] args)
     {
         int randomIndicator, countOfLines, rangeOfNumbers,
             whileIndicator = 0, countOfFiles = 1;
 
 
-
+        // Создание и поддержка проверок и обработок исключений.
         while (whileIndicator == 0)
         {
             Console.WriteLine("Сколько файлов вы хотите создать: ");
@@ -33,6 +39,8 @@ class consoleUtility
                 {
                     randomIndicator = Convert.ToInt32(Console.ReadLine());
 
+                    // Срабатывает в случае, когда пользователь хочет
+                    // кастомизировать настройки заполнения файлов.
                     if (randomIndicator == 0)
                     {
                         Console.WriteLine("Введите число от 100 до 1000: ");
@@ -43,6 +51,10 @@ class consoleUtility
                             Random randRange = new Random();
                             rangeOfNumbers = randRange.Next(0, 1000);
 
+                            // Объявление методов:
+                            // генерация каждого из файлов + сортировка;
+                            // определение уникальности элементов списка;
+                            // поиск элементов, при делении которых на 4 остаток = 3.
                             Generate(countOfLines, rangeOfNumbers, countOfFiles);
                             nums.Reverse();
                             finalText += "\nИсходный список:\n";
@@ -68,6 +80,9 @@ class consoleUtility
 
                     }
 
+                    // Срабатывает в случае, когда пользователь не хочет
+                    // кастомизировать настройки заполнения файлов и
+                    // доверяется рандомному заполнению даных.
                     else if (randomIndicator == 1)
                     {
                         Random randCount = new Random();
@@ -76,6 +91,10 @@ class consoleUtility
                         countOfLines = randCount.Next(100, 1000);
                         rangeOfNumbers = randRange.Next(0, 1000);
 
+                        // Объявление методов:
+                        // генерация каждого из файлов + сортировка;
+                        // определение уникальности элементов списка;
+                        // поиск элементов, при делении которых на 4 остаток = 3.
                         Generate(countOfLines, rangeOfNumbers, countOfFiles);
                         nums.Reverse();
                         finalText += "\nИсходный список:\n";
@@ -101,6 +120,7 @@ class consoleUtility
                     Console.WriteLine("Вероятно, вы ввели не число. Попробуйте еще раз.");
                 }
 
+                // Запись в файл выходных данных по итогу работы программы.
                 try
                 {
                     using (FileStream fs = File.Create(filesPath + "Result.txt"))
@@ -123,6 +143,8 @@ class consoleUtility
         Console.ReadLine();
     }
 
+
+    // Метод генерации случайных значений
     static void Generate(int countOfLin, int range, int countOfFil)
     {
         int lineCheker, number;
@@ -170,10 +192,12 @@ class consoleUtility
             Console.WriteLine(e.ToString());
         }
 
+        // Автоматическая сортировка элементов (по возрастанию)
         Sorting(nums);
     }
 
 
+    // Метод сортировки полученных элементов (по дефолту - возрастание)
     public static List<int> Sorting(List<int> list)
     {
         for (int i = 0; i < list.Count - 1; i++)
@@ -193,6 +217,8 @@ class consoleUtility
         return list;
     }
 
+
+    // Метод поиска уникальных значений в общей массе
     public static List<int> Unique(List<int> list, List<int> listNew)
     {
         try
@@ -210,6 +236,8 @@ class consoleUtility
         return listNew;
     }
 
+
+    // Поиск элементов, способных при делении на 4 оставить в остатке 3
     public static List<int> Division(List<int> list, List<int> listNew)
     {
         for (int i = 0; i < list.Count; i++)
