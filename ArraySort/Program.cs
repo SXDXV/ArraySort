@@ -11,6 +11,8 @@ class consoleUtility
     static List<int> numsUnique = new List<int>();
     static List<int> numsDivision = new List<int>();
 
+    static string finalText;
+
     static void Main(string[] args)
     {
         int randomIndicator, countOfLines, rangeOfNumbers,
@@ -42,9 +44,20 @@ class consoleUtility
                             rangeOfNumbers = randRange.Next(0, 1000);
 
                             Generate(countOfLines, rangeOfNumbers, countOfFiles);
-                            Sorting(nums);
                             nums.Reverse();
-                            for (int i = 0; i < nums.Count; i++) Console.WriteLine(nums[i]);
+                            finalText += "\nИсходный список:\n";
+                            for (int i = 0; i < nums.Count; i++)
+                                finalText += nums[i] + "\n";
+
+                            Unique(nums, numsUnique);
+                            finalText += "\n\nУникальные:\n";
+                            for (int i = 0; i < numsUnique.Count; i++)
+                                finalText += numsUnique[i] + "\n";
+
+                            Division(numsUnique, numsDivision);
+                            finalText += "\n\nДелятся на 4 с остатком 3:\n";
+                            for (int i = 0; i < numsDivision.Count; i++)
+                                finalText += numsDivision[i] + "\n";
 
                             whileIndicator = 1;
                         }
@@ -65,19 +78,19 @@ class consoleUtility
 
                         Generate(countOfLines, rangeOfNumbers, countOfFiles);
                         nums.Reverse();
-
-                        Console.WriteLine("\nИсходный список:");
+                        finalText += "\nИсходный список:\n";
                         for (int i = 0; i < nums.Count; i++)
-                            Console.WriteLine(nums[i]);
-
-                        //for (int i = 0; i < nums.Count; i++) 
-                        //    numsUnique.Add(nums[i]);
+                            finalText += nums[i] + "\n";
 
                         Unique(nums, numsUnique);
-                        Console.WriteLine("Уникальные: ");
+                        finalText += "\n\nУникальные:\n";
                         for (int i = 0; i < numsUnique.Count; i++)
-                            Console.WriteLine(numsUnique[i]);
+                            finalText += numsUnique[i] + "\n";
 
+                        Division(numsUnique, numsDivision);
+                        finalText += "\n\nДелятся на 4 с остатком 3:\n";
+                        for (int i = 0; i < numsDivision.Count; i++)
+                            finalText += numsDivision[i] + "\n";
 
                         whileIndicator = 1;
                     }
@@ -86,6 +99,20 @@ class consoleUtility
                 catch (FormatException e)
                 {
                     Console.WriteLine("Вероятно, вы ввели не число. Попробуйте еще раз.");
+                }
+
+                try
+                {
+                    using (FileStream fs = File.Create(filesPath + "Result.txt"))
+                    {
+                        byte[] info = new UTF8Encoding(true).GetBytes(finalText.ToString() + "\n");
+                        // Добавление информации в файл.
+                        fs.Write(info, 0, info.Length);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.ToString());
                 }
             }
             catch (FormatException e)
@@ -185,6 +212,11 @@ class consoleUtility
 
     public static List<int> Division(List<int> list, List<int> listNew)
     {
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i]%4==3) listNew.Add(list[i]);
+        }
 
+        return listNew;
     }
 }
