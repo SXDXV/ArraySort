@@ -6,14 +6,17 @@ using System.Text;
 class consoleUtility
 {
     static string filesPath = Environment.CurrentDirectory + "/txts/File";
+
     static List<int> nums = new List<int>();
+    static List<int> numsUnique = new List<int>();
+    static List<int> numsDivision = new List<int>();
 
     static void Main(string[] args)
     {
-        int randomIndicator, countOfLines, rangeOfNumbers, 
+        int randomIndicator, countOfLines, rangeOfNumbers,
             whileIndicator = 0, countOfFiles = 1;
 
-        
+
 
         while (whileIndicator == 0)
         {
@@ -59,13 +62,21 @@ class consoleUtility
 
                         countOfLines = randCount.Next(100, 1000);
                         rangeOfNumbers = randRange.Next(0, 1000);
+
                         Generate(countOfLines, rangeOfNumbers, countOfFiles);
                         nums.Reverse();
-                        for (int i = 0; i < nums.Count; i++) Console.WriteLine(nums[i]);
-                        
+
+                        Console.WriteLine("\nИсходный список:");
+                        for (int i = 0; i < nums.Count; i++)
+                            Console.WriteLine(nums[i]);
+
+                        //for (int i = 0; i < nums.Count; i++) 
+                        //    numsUnique.Add(nums[i]);
+
+                        Unique(nums, numsUnique);
                         Console.WriteLine("Уникальные: ");
-                        Unique(nums);
-                        //for (int i = 0; i < nums.Count; i++) Console.WriteLine(nums[i]);
+                        for (int i = 0; i < numsUnique.Count; i++)
+                            Console.WriteLine(numsUnique[i]);
 
 
                         whileIndicator = 1;
@@ -155,21 +166,13 @@ class consoleUtility
         return list;
     }
 
-    public static List<int> Unique(List<int> list)
+    public static List<int> Unique(List<int> list, List<int> listNew)
     {
         try
         {
-            var result = list.Select((el, idx) => (el, idx))
-                    .GroupBy(c => c.el)
-                    .Where(g => g.Count() > 1)
-                    .SelectMany(g => g.Select(c => c.idx).ToList())
-                    .ToList();
-
-            for (int i = 0; i < result.Count; i++)
-            {
-                //list.RemoveAt(result[i]);
-                Console.WriteLine(result[i]);
-            }
+            IEnumerable<int> distinctList = list.AsQueryable().Distinct();
+            foreach (int num in distinctList)
+                listNew.Add(num);
 
         }
         catch (Exception e)
@@ -177,6 +180,11 @@ class consoleUtility
             Console.WriteLine(e);
         }
 
-        return list;
+        return listNew;
+    }
+
+    public static List<int> Division(List<int> list, List<int> listNew)
+    {
+
     }
 }
