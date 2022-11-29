@@ -2,11 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using FireSharp.Config;
+using FireSharp.Response;
+using FireSharp.Interfaces;
+using FireSharp;
 
 class consoleUtility
 {
     // Универсальный путь для создания и чтения файлов.
     static string filesPath = Environment.CurrentDirectory + "/txts/File";
+
+    static IFirebaseClient client;
+    static IFirebaseConfig ifc;
 
     // Три листа, хранящие специализированные данные.
     static List<int> nums = new List<int>();
@@ -97,19 +104,32 @@ class consoleUtility
                         // поиск элементов, при делении которых на 4 остаток = 3.
                         Generate(countOfLines, rangeOfNumbers, countOfFiles);
                         nums.Reverse();
+                        ClearBaseAsync("Default");
                         finalText += "\nИсходный список:\n";
                         for (int i = 0; i < nums.Count; i++)
+                        {
                             finalText += nums[i] + "\n";
+                            WriteToBaseAsync(i, nums[i].ToString(), "Default");
+                        }
 
                         Unique(nums, numsUnique);
+                        ClearBaseAsync("Unique");
                         finalText += "\n\nУникальные:\n";
                         for (int i = 0; i < numsUnique.Count; i++)
+                        {
                             finalText += numsUnique[i] + "\n";
+                            WriteToBaseAsync(i, numsUnique[i].ToString(), "Unique");
+                        }
+                            
 
                         Division(numsUnique, numsDivision);
+                        ClearBaseAsync("Division");
                         finalText += "\n\nДелятся на 4 с остатком 3:\n";
                         for (int i = 0; i < numsDivision.Count; i++)
+                        {
                             finalText += numsDivision[i] + "\n";
+                            WriteToBaseAsync(i, numsDivision[i].ToString(), "Division");
+                        }
 
                         whileIndicator = 1;
                     }
@@ -246,5 +266,56 @@ class consoleUtility
         }
 
         return listNew;
+    }
+
+    public static void ConnectToBase()
+    {
+        ifc = new FirebaseConfig()
+        {
+            AuthSecret = "dNRtXRckr6c9NKercNJCJoYiVCp1Qg4wPlD98c5v",
+            BasePath = "https://arraysorting-default-rtdb.firebaseio.com"
+        };
+
+        try
+        {
+            client = new FireSharp.FirebaseClient(ifc);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    public static async Task WriteToBaseAsync(int k, string v, string path)
+    {
+        ConnectToBase();
+        try
+        {
+            Number number = new Number
+            {
+                key = k,
+                value = v
+            };
+
+            PushResponse response = await client.PushAsync(path, number);
+            Number result = response.ResultAs<Number>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+    
+    public static async Task ClearBaseAsync(string path)
+    {
+        ConnectToBase();
+        try
+        {
+            FirebaseResponse response = await client.DeleteAsync(path);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
     }
 }
