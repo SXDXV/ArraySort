@@ -6,14 +6,20 @@ using FireSharp.Config;
 using FireSharp.Response;
 using FireSharp.Interfaces;
 using FireSharp;
+using System.Threading;
+using System.Xml;
 
 class consoleUtility
 {
     // Универсальный путь для создания и чтения файлов.
     static string filesPath = Environment.CurrentDirectory + "/txts/File";
 
+    // Объявление клиента и конфига для подключения к Firebase.
     static IFirebaseClient client;
     static IFirebaseConfig ifc;
+
+    // Объявление счетчика тиков программы.
+    static int time = 0;
 
     // Три листа, хранящие специализированные данные.
     static List<int> nums = new List<int>();
@@ -23,6 +29,8 @@ class consoleUtility
     // Финальный стринг, хранящий в себе
     // полный текст для финальной записи в файл.
     static string finalText;
+
+    static Object locker = new();
 
 
     // Основная Main-функция, точка входа в программу.
@@ -41,6 +49,12 @@ class consoleUtility
                 countOfFiles = Convert.ToInt32(Console.ReadLine());
 
                 Console.WriteLine("Вы хотите сгенерировать данные случайно? 0 - нет, 1 - да: ");
+
+                int num = 0;
+                // устанавливаем метод обратного вызова
+                TimerCallback tm = new TimerCallback(Count);
+                // создаем таймер
+                Timer timer = new Timer(tm, num, 0, 1);
 
                 try
                 {
@@ -98,6 +112,7 @@ class consoleUtility
                         countOfLines = randCount.Next(100, 1000);
                         rangeOfNumbers = randRange.Next(0, 1000);
 
+                        
                         // Объявление методов:
                         // генерация каждого из файлов + сортировка;
                         // определение уникальности элементов списка;
@@ -154,6 +169,8 @@ class consoleUtility
                 {
                     Console.WriteLine(e.ToString());
                 }
+
+                Console.WriteLine("\nКоличество МС: {0}", time);
             }
             catch (FormatException e)
             {
@@ -165,8 +182,10 @@ class consoleUtility
 
 
     // Метод генерации случайных значений
-    static void Generate(int countOfLin, int range, int countOfFil)
+    static async void Generate(int countOfLin, int range, int countOfFil)
     {
+        //Thread mythread = new Thread(new );
+
         int lineCheker, number;
 
         try
@@ -176,14 +195,14 @@ class consoleUtility
                 lineCheker = 0;
 
                 // Создание файла и его перезапись в случае существования.
-                using (FileStream fs = File.Create(filesPath + i + ".txt"))
+                await using (FileStream fs = File.Create(filesPath + i + ".txt"))
                 {
                     while (lineCheker < countOfLin)
                     {
                         Random rand = new Random();
                         number = rand.Next(range + 1);
 
-                        byte[] info = new UTF8Encoding(true).GetBytes(number.ToString() + "\n");
+                        byte[] info = new UTF8Encoding(true).GetBytes(number.ToString() + "\n");                        
 
                         // Добавление информации в файл.
                         fs.Write(info, 0, info.Length);
@@ -239,50 +258,58 @@ class consoleUtility
 
 
     // Метод поиска уникальных значений в общей массе
-    public static List<int> Unique(List<int> list, List<int> listNew)
+    public static List<int> Unique(List<int>? list, List<int>? listNew)
     {
-        try
+        lock (locker)
         {
-            IEnumerable<int> distinctList = list.AsQueryable().Distinct();
-            foreach (int num in distinctList)
-                listNew.Add(num);
+            try
+            {
+                IEnumerable<int> distinctList = list.AsQueryable().Distinct();
+                foreach (int num in distinctList)
+                    listNew.Add(num);
 
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return listNew;
         }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
-
-        return listNew;
     }
 
 
     // Поиск элементов, способных при делении на 4 оставить в остатке 3
     public static List<int> Division(List<int> list, List<int> listNew)
     {
-        for (int i = 0; i < list.Count; i++)
+        lock (locker)
         {
-            if (list[i]%4==3) listNew.Add(list[i]);
-        }
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i] % 4 == 3) listNew.Add(list[i]);
+            }
 
-        return listNew;
+            return listNew;
+        }
     }
 
     public static void ConnectToBase()
     {
-        ifc = new FirebaseConfig()
+        lock (locker)
         {
-            AuthSecret = "dNRtXRckr6c9NKercNJCJoYiVCp1Qg4wPlD98c5v",
-            BasePath = "https://arraysorting-default-rtdb.firebaseio.com"
-        };
+            ifc = new FirebaseConfig()
+            {
+                AuthSecret = "dNRtXRckr6c9NKercNJCJoYiVCp1Qg4wPlD98c5v",
+                BasePath = "https://arraysorting-default-rtdb.firebaseio.com"
+            };
 
-        try
-        {
-            client = new FireSharp.FirebaseClient(ifc);
-        }
-        catch (Exception)
-        {
-            throw;
+            try
+            {
+                client = new FireSharp.FirebaseClient(ifc);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 
@@ -302,7 +329,7 @@ class consoleUtility
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            //Console.WriteLine(ex);
         }
     }
     
@@ -315,7 +342,12 @@ class consoleUtility
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            //Console.WriteLine(ex);
         }
+    }
+
+    public static void Count(object obj)
+    {
+        time++;
     }
 }
